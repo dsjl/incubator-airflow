@@ -1725,14 +1725,38 @@ class HomeView(AdminIndexView):
         qry = None
         # filter the dags if filter_by_owner and current user is not superuser
         do_filter = FILTER_BY_OWNER and (not current_user.is_superuser())
+        owner_mode = conf.get('webserver', 'OWNER_MODE').strip().lower()
+
+        if do_filter and owner_mode not in ['user', 'ldapgroup']:
+            logout_user()
+            flash("Configuration error: "
+                  "owner_mode option should be either 'user' or 'ldapgroup' when filtering by owner is set",
+                  "error")
+            return redirect(url_for('admin.index'))
+
+        elif do_filter and owner_mode == "ldapgroup" and not isinstance(current_user, airflow.contrib.auth.backends.ldap_auth.LdapUser):
+            logout_user()
+            flash("Configuration error: "
+                  "attempt at using ldapgroup filtering without using Ldap backend",
+                  "error")
+
         if do_filter:
-            qry = (
-                session.query(DM)
-                    .filter(
-                    ~DM.is_subdag, DM.is_active,
-                    DM.owners == current_user.username)
-                    .all()
-            )
+            if owner_mode == 'ldapgroup':
+                qry = (
+                    session.query(DM)
+                        .filter(
+                        ~DM.is_subdag, DM.is_active,
+                        DM.owners.in_(current_user.ldap_groups))
+                        .all()
+                )
+            elif owner_mode == 'user':
+                qry = (
+                    session.query(DM)
+                        .filter(
+                        ~DM.is_subdag, DM.is_active,
+                        DM.owners == current_user.user.username)
+                        .all()
+                )
         else:
             qry = session.query(DM).filter(~DM.is_subdag, DM.is_active).all()
         orm_dags = {dag.dag_id: dag for dag in qry}
@@ -1746,13 +1770,22 @@ class HomeView(AdminIndexView):
         session.close()
         dags = dagbag.dags.values()
         if do_filter:
-            dags = {
-                dag.dag_id: dag
-                for dag in dags
-                if (
-                    dag.owner == current_user.username and (not dag.parent_dag)
-                )
+            if owner_mode == 'ldapgroup':
+                dags = {
+                    dag.dag_id: dag
+                    for dag in dags
+                    if (
+                        dag.owner in current_user.ldap_groups and (not dag.parent_dag)
+                    )
                 }
+            elif owner_mode == 'user':
+                dags = {
+                    dag.dag_id: dag
+                    for dag in dags
+                    if (
+                        dag.owner == current_user.user.username and (not dag.parent_dag)
+                    )
+                    }
         else:
             dags = {dag.dag_id: dag for dag in dags if not dag.parent_dag}
         all_dag_ids = sorted(set(orm_dags.keys()) | set(dags.keys()))
