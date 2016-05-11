@@ -1727,19 +1727,6 @@ class HomeView(AdminIndexView):
         do_filter = FILTER_BY_OWNER and (not current_user.is_superuser())
         owner_mode = conf.get('webserver', 'OWNER_MODE').strip().lower()
 
-        if do_filter and owner_mode not in ['user', 'ldapgroup']:
-            logout_user()
-            flash("Configuration error: "
-                  "owner_mode option should be either 'user' or 'ldapgroup' when filtering by owner is set",
-                  "error")
-            return redirect(url_for('admin.index'))
-
-        elif do_filter and owner_mode == "ldapgroup" and not isinstance(current_user, airflow.contrib.auth.backends.ldap_auth.LdapUser):
-            logout_user()
-            flash("Configuration error: "
-                  "attempt at using ldapgroup filtering without using Ldap backend",
-                  "error")
-
         if do_filter:
             if owner_mode == 'ldapgroup':
                 qry = (
