@@ -454,14 +454,14 @@ class ConfigParserWithDefaults(ConfigParser):
                 format(self.get('core', 'executor')))
 
         elif (
-            self.getboolean("core", "authenticate") and
+            self.getboolean("webserver", "authenticate") and
             self.get("webserver", "owner_mode") not in ['user', 'ldapgroup']
         ):
             raise AirflowConfigException("error: owner_mode option should be either 'user' or 'ldapgroup'"
                                          " when filtering by owner is set")
 
         elif (
-            self.getboolean("core", "authenticate") and
+            self.getboolean("webserver", "authenticate") and
             self.get("webserver", "owner_mode").lower() == 'ldapgroup' and
             self.get("core", "auth_backend") != 'airflow.contrib.auth.backends.ldap_auth'
         ):
