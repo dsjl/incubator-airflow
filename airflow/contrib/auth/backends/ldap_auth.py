@@ -70,6 +70,12 @@ def groups_user(conn, search_base, user_filter, user_name_att, username):
         LOG.info("Cannot find user %s", username)
         raise AuthenticationError("Invalid username or password")
 
+    if conn.response and "memberOf" not in conn.response[0]["attributes"]:
+        LOG.warn("""Missing attribute "memberOf" when looked-up in Ldap database.
+        The user does not seem to be a member of a group and therefore won't see any dag
+        if the option filter_by_owner=True and owner_mode=ldapgroup are set""")
+        return []
+
     user_groups = conn.response[0]["attributes"]["memberOf"]
 
     regex = re.compile("cn=([^,]*).*")
