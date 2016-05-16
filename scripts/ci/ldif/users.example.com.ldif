@@ -5,7 +5,6 @@ objectClass: account
 objectClass: simpleSecurityObject
 uid: user1
 userPassword: user1
-member: cn=group1,ou=groups,dc=example,dc=com
 
 dn: uid=dataprofiler,dc=example,dc=com
 objectClass: account

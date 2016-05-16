@@ -1,0 +1,23 @@
+# create all groups
+
+dn: ou=groups,dc=example,dc=com
+objectClass: organizationalunit
+ou: groups
+description: generic groups branch
+
+dn: cn=group1,ou=groups,dc=example,dc=com
+objectclass: groupofnames
+cn: group1
+description: Group 1 of users
+# add the group members all of which are 
+# assumed to exist under people
+member: cn=user1,dc=example,dc=com
+#member: cn=admin, dc=example,dc=org
+
+
+dn: cn=group2,ou=groups,dc=example,dc=org
+objectclass: groupofnames
+cn: group2
+description: Group 2 of users
+member: cn=user2,dc=example,dc=com
+#member: cn=admin,dc=example,dc=org
