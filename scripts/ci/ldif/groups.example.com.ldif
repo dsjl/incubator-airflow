@@ -15,7 +15,7 @@ member: cn=user1,dc=example,dc=com
 #member: cn=admin, dc=example,dc=org
 
 
-dn: cn=group2,ou=groups,dc=example,dc=org
+dn: cn=group2,ou=groups,dc=example,dc=com
 objectclass: groupofnames
 cn: group2
 description: Group 2 of users
