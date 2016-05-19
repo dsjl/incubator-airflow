@@ -1098,7 +1098,9 @@ class LdapGroupTest(unittest.TestCase):
         users = {"user1": ["group1", "group3"],
                  "user2": ["group2"]}
         for user in users:
-            auth = LdapUser(user)
+            mu = models.User(username=user,
+                             is_superuser=False)
+            auth = LdapUser(mu)
             assert set(auth.ldap_groups) == set(users[user])
 
     def tearDown(self):
