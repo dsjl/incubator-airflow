@@ -12,12 +12,15 @@ description: Group 1 of users
 # add the group members all of which are 
 # assumed to exist under people
 member: cn=user1,dc=example,dc=com
-#member: cn=admin, dc=example,dc=org
-
 
 dn: cn=group2,ou=groups,dc=example,dc=com
 objectclass: groupofnames
 cn: group2
 description: Group 2 of users
 member: cn=user2,dc=example,dc=com
-#member: cn=admin,dc=example,dc=org
+
+dn: cn=group3,ou=groups,dc=example,dc=com
+objectclass: groupofnames
+cn: group3
+description: Group 3 of users
+member: cn=user1,dc=example,dc=com

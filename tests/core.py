@@ -20,6 +20,7 @@ import re
 import unittest
 import mock
 import tempfile
+import copy
 from datetime import datetime, time, timedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
@@ -1076,6 +1077,39 @@ class WebLdapAuthTest(unittest.TestCase):
         session.close()
         configuration.conf.set("webserver", "authenticate", "False")
 
+class LdapGroupTest(unittest.TestCase):
+    def setUp(self):
+        configuration.conf.set("webserver", "authenticate", "True")
+        configuration.conf.set("webserver", "auth_backend", "airflow.contrib.auth.backends.ldap_auth")
+        try:
+            configuration.conf.add_section("ldap")
+        except:
+            pass
+        configuration.conf.set("ldap", "uri", "ldap://localhost:3890")
+        configuration.conf.set("ldap", "user_filter", "objectClass=*")
+        configuration.conf.set("ldap", "user_name_attr", "uid")
+        configuration.conf.set("ldap", "bind_user", "cn=Manager,dc=example,dc=com")
+        configuration.conf.set("ldap", "bind_password", "insecure")
+        configuration.conf.set("ldap", "basedn", "dc=example,dc=com")
+        configuration.conf.set("ldap", "cacert", "")
+
+    def test_group_belonging(self):
+        from airflow.contrib.auth.backends.ldap_auth import LdapUser
+        users = {"user1": ["group1", "group3"],
+                 "user2": ["group2"]}
+        for user in users:
+            auth = LdapUser(user)
+            assert set(auth.ldap_groups) == set(users[user])
+
+    def tearDown(self):
+        configuration.test_mode()
+        configuration.conf.set("webserver", "authenticate", "False")
+
+# class ConfigValidationTest(unittest.TestCase):
+#     def setUp(self):
+#         pass
+#     def tearDown(self):
+#         pass
 
 if 'MySqlOperator' in dir(operators):
     # Only testing if the operator is installed
