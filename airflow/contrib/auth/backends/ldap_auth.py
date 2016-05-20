@@ -18,6 +18,7 @@ from airflow.configuration import AirflowConfigException
 import logging
 
 import traceback
+import re
 
 login_manager = flask_login.LoginManager()
 login_manager.login_view = 'airflow.login'  # Calls login() bellow

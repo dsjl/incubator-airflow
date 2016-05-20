@@ -1096,7 +1096,8 @@ class LdapGroupTest(unittest.TestCase):
     def test_group_belonging(self):
         from airflow.contrib.auth.backends.ldap_auth import LdapUser
         users = {"user1": ["group1", "group3"],
-                 "user2": ["group2"]}
+                 "user2": ["group2"]
+                 }
         for user in users:
             mu = models.User(username=user,
                              is_superuser=False)
